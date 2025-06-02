@@ -15,9 +15,9 @@ WINDOW_WIDTH = 3840
 WINDOW_HEIGHT = 2160
 DEVICE_SCALE = 1.25
 
-CROP_WIDTH = 1600
-CROP_HEIGHT = 1000
-OFFSET_X = -250  # daha geniş görüntüde sola orantılı kaydırma
+CROP_WIDTH = 2000    
+CROP_HEIGHT = 1500
+OFFSET_X = -400  # daha geniş görüntüde sola orantılı kaydırma
 OFFSET_Y = 0
 
 def take_and_crop():
