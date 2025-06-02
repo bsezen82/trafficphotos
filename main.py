@@ -34,7 +34,7 @@ def take_and_crop():
     driver = webdriver.Chrome(options=options)
 
     # Harita linkin (trafik katmanlı, 3D)
-    maps_url = "https://www.google.com/maps/@21.4245033,39.8768942,11012m/data=!3m1!1e3!5m1!1e1"
+    maps_url = "https://www.google.com/maps/@21.4245033,39.8768942,14012m/data=!3m1!1e3!5m1!1e1"
     driver.get(maps_url)
     time.sleep(10)  # yüklenmesi için bekle
 
