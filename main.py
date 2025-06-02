@@ -6,44 +6,48 @@ import cv2
 import time
 import os
 
-# === Klasör ayarı ===
+# === Çıktı klasörü ===
 output_dir = "images"
 os.makedirs(output_dir, exist_ok=True)
 
-# === Kaydırma ayarı ===
-OFFSET_X = -80  # sola kaydırmak için negatif değer
+# === Görsel Ayarları ===
+WINDOW_WIDTH = 3840
+WINDOW_HEIGHT = 2160
+DEVICE_SCALE = 1.25
+
+CROP_WIDTH = 1600
+CROP_HEIGHT = 1000
+OFFSET_X = -160  # daha geniş görüntüde sola orantılı kaydırma
 OFFSET_Y = 0
-CROP_WIDTH = 800
-CROP_HEIGHT = 500
 
 def take_and_crop():
-    # Otomatik olarak uyumlu chromedriver kur
+    # Otomatik olarak uyumlu chromedriver kurar
     chromedriver_autoinstaller.install()
 
     options = Options()
     options.add_argument("--headless=new")
-    options.add_argument("--window-size=1920,1080")
-    options.add_argument("--force-device-scale-factor=0.8")
+    options.add_argument(f"--window-size={WINDOW_WIDTH},{WINDOW_HEIGHT}")
+    options.add_argument(f"--force-device-scale-factor={DEVICE_SCALE}")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
     driver = webdriver.Chrome(options=options)
 
-    # Trafik + uydu harita linkin
+    # Harita linkin (trafik katmanlı, 3D)
     maps_url = "https://www.google.com/maps/@21.4245033,39.8768942,11012m/data=!3m1!1e3!5m1!1e1"
     driver.get(maps_url)
-    time.sleep(10)  # Yüklenmesini bekle
+    time.sleep(10)  # yüklenmesi için bekle
 
-    # Zaman damgası ile dosya isimleri
+    # Dosya isimleri
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     raw_path = f"{output_dir}/map_{timestamp}.png"
     cropped_path = f"{output_dir}/map_{timestamp}_cropped.png"
 
-    # Ekran görüntüsü al
+    # Görüntüyü kaydet
     driver.save_screenshot(raw_path)
     driver.quit()
 
-    # Görseli oku ve kırp
+    # Görüntüyü kırp
     img = cv2.imread(raw_path)
     h, w, _ = img.shape
     cx = (w // 2) + OFFSET_X
