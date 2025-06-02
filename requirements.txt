@@ -1,2 +1,3 @@
 selenium
 opencv-python-headless
+chromedriver-autoinstaller
