@@ -52,4 +52,8 @@ def take_and_crop():
     cropped = img[cy - CROP_HEIGHT//2 : cy + CROP_HEIGHT//2,
                   cx - CROP_WIDTH//2  : cx + CROP_WIDTH//2]
 
-    cv2.imwrite(cropped_path_
+    cv2.imwrite(cropped_path, cropped)
+    print(f"✔ Kırpıldı ve kaydedildi: {cropped_path}")
+
+if __name__ == "__main__":
+    take_and_crop()
