@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+import chromedriver_autoinstaller
 from datetime import datetime
 import cv2
 import time
@@ -9,13 +10,15 @@ output_dir = "images"
 os.makedirs(output_dir, exist_ok=True)
 
 def take_and_crop():
+    # Otomatik uyumlu chromedriver kur
+    chromedriver_autoinstaller.install()
+
     options = Options()
     options.add_argument("--headless=new")
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--force-device-scale-factor=0.8")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    options.binary_location = "/usr/bin/google-chrome"  # Gerçek Chrome
 
     driver = webdriver.Chrome(options=options)
 
@@ -29,7 +32,7 @@ def take_and_crop():
     driver.save_screenshot(raw_path)
     driver.quit()
 
-    # Crop center + offset
+    # Crop
     img = cv2.imread(raw_path)
     h, w, _ = img.shape
     cx, cy = (w // 2) + 100, h // 2
