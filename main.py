@@ -5,54 +5,39 @@ import cv2
 import time
 import os
 
-# === KLASÖR AYARLARI ===
-base_folder = "images"
-raw_folder = os.path.join(base_folder, "raw")
-cropped_folder = os.path.join(base_folder, "cropped")
-os.makedirs(raw_folder, exist_ok=True)
-os.makedirs(cropped_folder, exist_ok=True)
+output_dir = "images"
+os.makedirs(output_dir, exist_ok=True)
 
-# === GÖRSELİ AL (SELENIUM) ===
-def take_traffic_screenshot():
+def take_and_crop():
     options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--window-size=1280,720")
-    options.add_argument("--disable-gpu")
+    options.add_argument("--headless=new")
+    options.add_argument("--window-size=1920,1080")
+    options.add_argument("--force-device-scale-factor=0.8")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.binary_location = "/usr/bin/google-chrome"  # Gerçek Chrome
+
     driver = webdriver.Chrome(options=options)
 
-    # Mekke merkezi + trafik katmanı açık
-    maps_url = "https://www.google.com/maps/@21.4245033,39.8768942,11012m/data=!3m1!1e3!5m1!1e1?entry=ttu&g_ep=EgoyMDI1MDUyNi4wIKXMDSoASAFQAw%3D%3D"
+    maps_url = "https://www.google.com/maps/@21.4245033,39.8768942,11012m/data=!3m1!1e3!5m1!1e1"
     driver.get(maps_url)
-    time.sleep(15)  # Harita yüklenme süresi
+    time.sleep(10)
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    raw_path = os.path.join(raw_folder, f"mekke_traffic_{timestamp}.png")
+    raw_path = f"{output_dir}/map_{timestamp}.png"
+    cropped_path = f"{output_dir}/map_{timestamp}_cropped.png"
     driver.save_screenshot(raw_path)
     driver.quit()
 
-    return raw_path, timestamp
-
-# === ORTADAN KIRP (OpenCV) ===
-def crop_center(image_path, timestamp, crop_width=1000, crop_height=800):
-    img = cv2.imread(image_path)
-    height, width, _ = img.shape
-
-    center_x = (width // 2) - 150
-    center_y = (height // 2) + 0
-    
-    x1 = center_x - crop_width // 2
-    y1 = center_y - crop_height // 2
-    x2 = center_x + crop_width // 2
-    y2 = center_y + crop_height // 2
-
-    cropped = img[y1:y2, x1:x2]
-    cropped_path = os.path.join(cropped_folder, f"mekke_traffic_{timestamp}_cropped.png")
+    # Crop center + offset
+    img = cv2.imread(raw_path)
+    h, w, _ = img.shape
+    cx, cy = (w // 2) + 100, h // 2
+    cw, ch = 800, 500
+    cropped = img[cy - ch//2:cy + ch//2, cx - cw//2:cx + cw//2]
     cv2.imwrite(cropped_path, cropped)
 
-    return cropped_path
+    print(f"✔ Kırpıldı ve kaydedildi: {cropped_path}")
 
-# === ÇALIŞTIR ===
 if __name__ == "__main__":
-    raw_path, timestamp = take_traffic_screenshot()
-    cropped_path = crop_center(raw_path, timestamp)
-    print(f"✔ Kırpılmış görsel kaydedildi: {cropped_path}")
+    take_and_crop()
