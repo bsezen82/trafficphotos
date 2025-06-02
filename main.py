@@ -6,30 +6,18 @@ import cv2
 import time
 import os
 
-# Görsellerin kaydedileceği klasör
+# === Klasör ayarı ===
 output_dir = "images"
 os.makedirs(output_dir, exist_ok=True)
 
-def crop_center(image_path, timestamp, crop_width=1000, crop_height=800, offset_x=-150, offset_y=0):
-    img = cv2.imread(image_path)
-    height, width, _ = img.shape
-
-    center_x = (width // 2) + offset_x
-    center_y = (height // 2) + offset_y
-
-    x1 = center_x - crop_width // 2
-    y1 = center_y - crop_height // 2
-    x2 = center_x + crop_width // 2
-    y2 = center_y + crop_height // 2
-
-    cropped = img[y1:y2, x1:x2]
-    cropped_path = os.path.join(output_dir, f"map_{timestamp}_cropped.png")
-    cv2.imwrite(cropped_path, cropped)
-
-    return cropped_path
+# === Kaydırma ayarı ===
+OFFSET_X = -80  # sola kaydırmak için negatif değer
+OFFSET_Y = 0
+CROP_WIDTH = 800
+CROP_HEIGHT = 500
 
 def take_and_crop():
-    # Otomatik doğru sürüm chromedriver yükle
+    # Otomatik olarak uyumlu chromedriver kur
     chromedriver_autoinstaller.install()
 
     options = Options()
@@ -41,18 +29,27 @@ def take_and_crop():
 
     driver = webdriver.Chrome(options=options)
 
-    # Harita linki (senin verdiğin)
+    # Trafik + uydu harita linkin
     maps_url = "https://www.google.com/maps/@21.4245033,39.8768942,11012m/data=!3m1!1e3!5m1!1e1"
     driver.get(maps_url)
-    time.sleep(10)  # Haritanın yüklenmesi için bekleme
+    time.sleep(10)  # Yüklenmesini bekle
 
+    # Zaman damgası ile dosya isimleri
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    raw_path = os.path.join(output_dir, f"map_{timestamp}.png")
+    raw_path = f"{output_dir}/map_{timestamp}.png"
+    cropped_path = f"{output_dir}/map_{timestamp}_cropped.png"
+
+    # Ekran görüntüsü al
     driver.save_screenshot(raw_path)
     driver.quit()
 
-    cropped_path = crop_center(raw_path, timestamp)
-    print(f"✔ Kırpıldı ve kaydedildi: {cropped_path}")
+    # Görseli oku ve kırp
+    img = cv2.imread(raw_path)
+    h, w, _ = img.shape
+    cx = (w // 2) + OFFSET_X
+    cy = (h // 2) + OFFSET_Y
 
-if __name__ == "__main__":
-    take_and_crop()
+    cropped = img[cy - CROP_HEIGHT//2 : cy + CROP_HEIGHT//2,
+                  cx - CROP_WIDTH//2  : cx + CROP_WIDTH//2]
+
+    cv2.imwrite(cropped_path_
