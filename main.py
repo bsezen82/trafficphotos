@@ -39,7 +39,7 @@ def take_and_crop():
     time.sleep(10)  # yüklenmesi için bekle
 
     # Dosya isimleri
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = (datetime.utcnow() + timedelta(hours=3)).strftime("%Y%m%d_%H%M")
     raw_path = f"{output_dir}/map_{timestamp}.png"
     cropped_path = f"{output_dir}/map_{timestamp}_cropped.png"
 
