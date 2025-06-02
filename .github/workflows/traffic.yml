@@ -1,0 +1,37 @@
+name: Collect Google Maps Traffic
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Her saat başı
+  workflow_dispatch:
+
+jobs:
+  collect-traffic:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get update
+          sudo apt-get install -y chromium-chromedriver
+          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
+
+      - name: Run traffic capture
+        run: python main.py
+
+      - name: Commit and push new image
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add images/
+          git commit -m "Add new traffic image: $(date)"
+          git push
